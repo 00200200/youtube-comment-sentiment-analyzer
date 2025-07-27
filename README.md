@@ -167,7 +167,7 @@ Emotube/
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/00200200/Comment-Sentiment-Analyzer.git emotube
+git clone https://github.com/00200200/youtube-comment-sentiment-analyzer
 cd emotube
 ```
 
