@@ -1,10 +1,10 @@
-# 🎭 Emotube: Advanced Social Media Sentiment Analyzer
+# 🎭 Emotube: YouTube Comment Sentiment Analyzer
 
 <div align="center">
 
 ![Emotube Banner](https://img.shields.io/badge/Emotube-Sentiment_Analyzer-blue?style=for-the-badge&logo=youtube&logoColor=white)
 
-**A powerful, containerized web application for analyzing sentiment in social media comments**
+**An experimental web application for analyzing sentiment in YouTube comments**
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-61DAFB?style=flat&logo=react&logoColor=black)](https://reactjs.org/)
@@ -18,17 +18,16 @@
 
 ## 🌟 Overview
 
-Emotube is a cutting-edge sentiment analysis platform that transforms social media engagement data into actionable insights. Currently featuring **YouTube comment analysis**, the platform is designed with extensibility in mind to support multiple social media platforms including **Facebook**, **Reddit**, **Twitter**, **Instagram**, and **TikTok**.
+Emotube fetches YouTube video metadata and top-level comments through the YouTube Data API, classifies comments with a pretrained Hugging Face sentiment model, and stores the results in PostgreSQL. A React interface displays video details, comment filters, and sentiment charts. YouTube is the only implemented platform; replies within comment threads are not fetched.
 
 ### ✨ Key Features
 
-- **🎯 Real-time Sentiment Analysis** - Advanced ML-powered sentiment classification
-- **📊 Interactive Dashboards** - Beautiful, responsive data visualizations
-- **🐳 Dockerized Architecture** - Full containerization for easy deployment
-- **⚡ Async Processing** - Background comment analysis with live progress updates
-- **🔍 Advanced Filtering** - Filter by sentiment, author, engagement metrics, and keywords
-- **📈 Comprehensive Analytics** - Detailed metrics and trend analysis
-- **🌐 Multi-platform Ready** - Extensible architecture for additional social media platforms
+- **🎯 Sentiment Classification** - Positive, neutral, negative, and ambiguous labels with model scores
+- **📊 Charts** - Sentiment counts over time with date-range selection
+- **🐳 Docker Compose** - Frontend, backend, and database services for local development
+- **⚡ Background Analysis** - Comment fetching and classification through FastAPI background tasks; the frontend polls every 3 seconds
+- **🔍 Comment Filters** - Sentiment, author, minimum likes, text search, and sorting
+- **📈 Video Metrics** - View, like, and comment counts plus derived engagement statistics
 
 ---
 
@@ -38,7 +37,7 @@ Emotube is a cutting-edge sentiment analysis platform that transforms social med
 
 <div align="center">
 
-**Landing Page with Clean, Modern Design**
+**Home Page**
 ![Home Page](readme_photos/ui_home.png)
 
 **YouTube URL Input and Analysis Initiation**
@@ -50,34 +49,33 @@ Emotube is a cutting-edge sentiment analysis platform that transforms social med
 
 <div align="center">
 
-**Comprehensive Video Information Display**
+**Video Information**
 ![Video Header](readme_photos/ui_video_header.png)
 
 **Interactive Sentiment Analysis Charts**
 ![Sentiment Charts](readme_photos/ui_video_chart.png)
 
-**Advanced Chart Filtering with Time Period Selection**
+**Chart Filtering by Time Period**
 ![Chart Period Filtering](readme_photos/ui_video_chart_period.png)
 
-**Detailed Comment Sentiment Analysis with Advanced Filtering**
+**Comment Sentiment Labels and Filters**
 ![Comments Analysis](readme_photos/ui_video_comments.png)
 
 </div>
 
 ### ✨ Key UI Features
 
-- **🎨 Modern Design** - Clean, responsive interface built with Tailwind CSS and ShadCN/UI
-- **📊 Interactive Charts** - Real-time sentiment visualization with Recharts
-- **🔍 Advanced Filtering** - Multi-criteria comment filtering and sorting
-- **⚡ Real-time Updates** - Live progress tracking during analysis
-- **📱 Responsive Layout** - Optimized for desktop and mobile devices
-- **🌙 Dark Mode Ready** - Consistent theming across all components
+- **🎨 Interface** - React components styled with Tailwind CSS and ShadCN/UI
+- **📊 Charts** - Sentiment visualization with Recharts
+- **🔍 Filters** - Comment filtering and sorting
+- **⚡ Progress Display** - Periodic polling of analysis status
+- **🌙 Theme Support** - A theme provider with dark mode as the default
 
 ---
 
 ## 🏗️ Architecture
 
-The project follows a modern microservices architecture with complete Docker containerization:
+Docker Compose runs a React frontend, a FastAPI backend, and PostgreSQL. Analysis runs inside the backend process; there is no separate worker service or durable job queue.
 
 ```
 Emotube/
@@ -131,27 +129,27 @@ Emotube/
 
 ### Backend
 
-- **🐍 Python 3.11** with **FastAPI** - High-performance async API framework
-- **🤖 Transformers & PyTorch** - Advanced sentiment analysis models
-- **🗄️ PostgreSQL + SQLModel** - Robust database with async ORM
+- **🐍 Python 3.11** with **FastAPI** - API routes and background tasks
+- **🤖 Transformers & PyTorch** - Pretrained sentiment classifier
+- **🗄️ PostgreSQL + SQLModel** - Database models and async sessions
 - **📡 Google API Client** - YouTube Data API integration
 - **⚡ Uvicorn** - ASGI server with auto-reload
 
 ### Frontend
 
-- **⚛️ React 19** with **TypeScript** - Modern UI framework
-- **🦄 Bun** - Ultra-fast JavaScript runtime and package manager
+- **⚛️ React 19** with **TypeScript** - Frontend components
+- **🦄 Bun** - JavaScript runtime and package manager
 - **🧭 TanStack Router** - Type-safe routing with devtools
-- **🔄 TanStack Query** - Powerful async state management
+- **🔄 TanStack Query** - API queries and polling
 - **🎨 Tailwind CSS** - Utility-first styling framework
-- **🧩 ShadCN/UI** - Beautiful, accessible component library
+- **🧩 ShadCN/UI** - UI components
 - **📊 Recharts** - Responsive data visualization
-- **⚡ Vite** - Lightning-fast build tool
+- **⚡ Vite** - Development server and build tool
 
 ### Infrastructure
 
-- **🐳 Docker & Docker Compose** - Complete containerization
-- **🔒 Environment-based Configuration** - Secure secrets management
+- **🐳 Docker & Docker Compose** - Local service configuration
+- **🔧 Environment Variables** - API key, database connection, and service URLs
 - **🌐 CORS-enabled API** - Cross-origin resource sharing
 - **📝 Auto-generated API Docs** - Interactive Swagger/OpenAPI
 
@@ -163,12 +161,13 @@ Emotube/
 
 - 🐳 **Docker** and **Docker Compose**
 - 🔑 **YouTube Data API v3 Key** ([Get one here](https://developers.google.com/youtube/v3/getting-started))
+- Network access for dependencies, initial model downloads, and YouTube API requests; comment fetching uses your API quota.
 
 ### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/00200200/youtube-comment-sentiment-analyzer
-cd emotube
+cd youtube-comment-sentiment-analyzer
 ```
 
 ### 2. Environment Setup
@@ -198,6 +197,7 @@ POSTGRES_PASSWORD=secure_password_here
 POSTGRES_DB=emotube_db
 POSTGRES_HOST=db
 POSTGRES_PORT=5432
+DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
 
 # Frontend Configuration
 VITE_BACKEND_URL=http://localhost:8000
@@ -220,6 +220,8 @@ docker-compose logs -f
 - 📚 **API Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
 - 🗄️ **Database**: `localhost:5432`
 
+The supplied Compose setup uses Vite's development server, Uvicorn auto-reload, source mounts, and published database/API ports. The API has no authentication and allows all CORS origins. Treat this as a local development setup, not a production deployment template. Initial backend startup may take time to download and load the model.
+
 ---
 
 ## 🎯 Usage
@@ -228,10 +230,10 @@ docker-compose logs -f
 
 1. **📱 Navigate** to the frontend application
 2. **🔗 Enter** a YouTube video URL
-3. **⚡ Watch** real-time sentiment analysis progress
+3. **⚡ Watch** analysis status update through periodic polling
 4. **📊 Explore** interactive charts and comment insights
 5. **🔍 Filter** comments by sentiment, author, or keywords
-6. **📈 View** comprehensive analytics and trends
+6. **📈 View** sentiment counts over time and video engagement metrics
 
 ### API Endpoints
 
@@ -242,12 +244,12 @@ docker-compose logs -f
 
 #### Comments
 
-- `GET /comments?url={youtube_url}` - Get comments with advanced filtering:
-  - `sentiment` - Filter by sentiment (positive/negative/neutral)
+- `GET /comments?url={youtube_url}` - Get stored comments with filtering:
+  - `sentiment` - Filter by sentiment (positive/negative/neutral/ambiguous)
   - `author` - Filter by author name
   - `min_likes` - Minimum like count
   - `phrase` - Text search within comments
-  - `sort_by` - Sort field (published_at, like_count, sentiment)
+  - `sort_by` - Sort field (for example, `published_at`, `like_count`, or `sentiment_label`)
   - `sort_order` - asc/desc
 
 #### Analytics
@@ -256,51 +258,11 @@ docker-compose logs -f
 
 ---
 
-## 🌐 Platform Extensibility
+## 🌐 Platform Scope
 
-Emotube is architected for **easy expansion** to additional social media platforms:
-
-### 🔄 Currently Supported
-
-- **📺 YouTube** - Complete comment sentiment analysis
-
-### 🚀 Ready for Integration
-
-The modular architecture supports adding:
-
-- **📘 Facebook** - Posts and comment analysis
-- **🔴 Reddit** - Subreddit and thread sentiment
-- **🐦 Twitter/X** - Tweet and reply analysis
-- **📷 Instagram** - Comment sentiment on posts and reels
-- **🎵 TikTok** - Video comment analysis
-- **💼 LinkedIn** - Professional content engagement
-- **📱 Discord** - Server message sentiment
-
-### 🛠️ Adding New Platforms
-
-1. **Create Integration Module**:
-
-   ```python
-   # backend/app/core/integrations/platform_name/
-   ├── client.py          # Platform API client
-   ├── models.py          # Platform-specific data models
-   └── sentiment.py       # Platform-specific processing
-   ```
-
-2. **Extend API Routes**:
-
-   ```python
-   # Add new endpoints in backend/app/api/routes/
-   @router.get("/platform_name/analyze")
-   async def analyze_platform_content(url: str):
-       # Implementation
-   ```
-
-3. **Update Frontend**:
-   ```typescript
-   // Add platform-specific components and services
-   // Extend URL parsing and validation
-   ```
+The only integration is [`backend/app/core/integrations/youtube/`](backend/app/core/integrations/youtube/).
+The routes, URL parsing, data models, and frontend are built around YouTube videos.
+Supporting another platform would require implementation and testing across those parts of the application.
 
 ---
 
@@ -308,18 +270,24 @@ The modular architecture supports adding:
 
 ### Local Development Setup
 
+This setup requires Python 3.11 and Bun. Configure the root `.env` first. For processes outside Docker, use
+`localhost` in `DATABASE_URL` instead of the Compose hostname `db`. The example below
+uses the credentials shown above; replace them with your configured values.
+
 ```bash
-# Backend development
+# Backend development, from the repository root
+docker-compose up -d db
 cd backend
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-uvicorn app.main:app --reload
+DATABASE_URL=postgresql+asyncpg://emotube_user:secure_password_here@localhost:5432/emotube_db \
+  uvicorn app.main:app --reload --env-file ../.env
 
-# Frontend development
+# Frontend development, in a separate terminal from the repository root
 cd frontend
 bun install
-bun run start
+VITE_BACKEND_URL=http://localhost:8000 bun run start
 ```
 
 ### Docker Development
@@ -354,23 +322,21 @@ docker-compose logs db
 
 ### Sentiment Analysis Engine
 
-- **🤖 Multi-model Support** - Hugging Face Transformers integration
-- **⚡ Async Processing** - Background analysis with progress tracking
-- **🎯 Confidence Scoring** - Sentiment confidence metrics
-- **🔄 Batch Processing** - Efficient comment processing in chunks
+- **🤖 Model** - `cardiffnlp/twitter-xlm-roberta-base-sentiment`, configured in [`config.py`](backend/app/core/config.py)
+- **🎯 Scores** - Stores the model's predicted label and score; scores below `0.6` are labeled `ambiguous`
+- **🔄 Processing** - Fetches pages of top-level comments, then classifies and saves comments individually
+- **📏 Input Limit** - Model inputs are truncated to 512 tokens
 
 ### Data Visualization
 
-- **📈 Sentiment Distribution** - Pie charts and bar graphs
-- **📊 Timeline Analysis** - Sentiment trends over time
-- **🔥 Engagement Metrics** - Like/dislike correlation analysis
-- **☁️ Word Clouds** - Popular terms and phrases
+- **📊 Timeline** - Area charts of comment counts by sentiment and publication date
+- **🔍 Comment View** - Filtered comments, model scores, and sentiment totals
+- **📈 Video Details** - Counts and derived engagement metrics; no word clouds or dislike-correlation analysis are implemented
 
-### Performance Features
+### Limitations
 
-- **⚡ Lazy Loading** - Progressive data loading
-- **🔄 Real-time Updates** - Live analysis progress
-- **💾 Persistent Storage** - PostgreSQL with proper indexing
-- **🚀 Caching Strategy** - Optimized data retrieval
+- Analysis is an on-demand background pass, not a stream of new YouTube comments. Polling refreshes stored results and status.
+- Model scores are predictions, not verified measurements of a commenter's intent. The repository does not report a sentiment-accuracy evaluation on YouTube comments.
+- API availability, quota, comment volume, and local inference speed affect completion time. This project does not provide a real-time latency guarantee.
 
 ---
